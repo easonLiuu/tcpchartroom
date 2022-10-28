@@ -1,4 +1,5 @@
 const net = require('net')
+const { type } = require('os')
 const types = require('./types')
 let nickname = null
 
@@ -22,6 +23,17 @@ client.on('connect', () => {
                 nickname: data
             }))
         }
+        //通过正则判断是否为私聊
+        const matches = /^@(\w+)\s(.+)$/.exec(data)
+        //符合@格式 p2p
+        if(matches) {
+            return client.write(JSON.stringify({
+                type: types.p2p,
+                nickname: matches[1],
+                message: matches[2]
+            }))
+        }
+
         //群聊
         client.write(JSON.stringify({
             type: types.broadcast,
@@ -46,6 +58,10 @@ client.on('data', data => {
             console.log(`${data.nickname}: ${data.message}`)
             break
         case types.p2p:
+            if(!data.success) {
+                return  console.log(`发送失败: ${data.message}`)
+            }
+            console.log(`${data.nickname} 对你说 ${data.message}`)
             break
         default:
             console.log('未知的消息类型')
