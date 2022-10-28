@@ -1,24 +1,45 @@
 const net = require('net')
+const types = require('./types')
 
 const server = net.createServer()
 
-const clients = []
+//[Socket, Socket,...]
+//也就是一个个客户端
+const users = []
 
 server.on('connection', clientSocket => {
-    //把当前连接的客户端通信接口存储到数组中
-    clients.push(clientSocket)
-
     clientSocket.on('data', data => {
-        console.log('有人说', data.toString())
-        //数据发给所有的客户端
-        clients.forEach(socket => {
-            if(socket !== clientSocket) {
-                socket.write(data)
-            }          
-        })
-    })
+       data = JSON.parse(data.toString().trim())
+       switch(data.type) {
+        case types.login:
+            if(users.find(item => item.nickname === data.nickname)){
+                return clientSocket.write(JSON.stringify({
+                    type: types.login,
+                    success: false,
+                    message: '昵称已重复'
+                }))
+            }
 
-    clientSocket.write('hello')
+            clientSocket.nickname = data.nickname
+            //添加到users中
+            users.push(clientSocket)
+            clientSocket.write(JSON.stringify({
+                type: types.login,
+                success: true,
+                message: '登录成功',
+                //当前多少人在线
+                nickname: data.nickname,
+                sumUsers: users.length
+            }))
+            break
+        case types.broadcast:
+            break
+        case types.p2p:
+            break
+        default:
+            break
+       }
+    })
 })
 
 server.listen(3000, () => {
