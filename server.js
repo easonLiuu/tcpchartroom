@@ -44,6 +44,21 @@ server.on('connection', clientSocket => {
             })
             break
         case types.p2p:
+            const user = users.find(item => item.nickname === data.nickname)
+            if(!user) {
+                return clientSocket.write(JSON.stringify({
+                    type: types.p2p,
+                    success: false,
+                    message: '该用户不存在'
+                }))
+            }
+
+            user.write(JSON.stringify({
+                type: types.p2p,
+                success: true,
+                nickname: clientSocket.nickname,
+                message: data.message
+            }))
             break
         default:
             break
