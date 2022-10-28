@@ -7,7 +7,11 @@ const client = net.createConnection({
 
 client.on('connect', () => {
     console.log('客户端与服务器建立连接成功')
-    client.write('world')
+    //发送给服务端
+    process.stdin.on('data', data => {
+        data = data.toString().trim()
+        client.write(data)
+    })
 })
 
 client.on('data', data => {
