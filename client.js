@@ -63,6 +63,9 @@ client.on('data', data => {
             }
             console.log(`${data.nickname} 对你说 ${data.message}`)
             break
+        case types.log:
+            console.log(data.message)
+            break
         default:
             console.log('未知的消息类型')
             break
