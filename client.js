@@ -17,11 +17,16 @@ client.on('connect', () => {
         //如果没有昵称
         if(!nickname) {
             //write里要么是二进制数据，要么是字符串，不可以直接写对象
-            client.write(JSON.stringify({
+            return client.write(JSON.stringify({
                 type: types.login,
                 nickname: data
             }))
         }
+        //群聊
+        client.write(JSON.stringify({
+            type: types.broadcast,
+            message: data,
+        }))
     })
 })
 
@@ -38,6 +43,7 @@ client.on('data', data => {
             }
             break
         case types.broadcast:
+            console.log(`${data.nickname}: ${data.message}`)
             break
         case types.p2p:
             break

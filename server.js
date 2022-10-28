@@ -33,6 +33,15 @@ server.on('connection', clientSocket => {
             }))
             break
         case types.broadcast:
+            //每一个message就是每一个clientSocket
+            //群聊消息发送到每一个用户
+            users.forEach(item => {
+                item.write(JSON.stringify({
+                    type: types.broadcast,
+                    nickname: clientSocket.nickname,
+                    message: data.message
+                }))
+            })
             break
         case types.p2p:
             break
